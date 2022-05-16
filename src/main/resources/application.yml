@@ -1,0 +1,96 @@
+server:
+  port: @server.port@
+
+management:
+  security:
+    flag: false
+  server:
+    port: @management.port@
+  metrics:
+    export:
+      statsd:
+        flavor: etsy
+        enabled: false
+      prometheus:
+        enabled: false
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+spring:
+  application:
+    name: @project.name@
+  output:
+    ansi:
+      enabled: always
+  jpa:
+    database: postgresql
+    properties:
+      hibernate:
+        default_schema: wb_dispatch
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: org.postgresql.Driver
+    url: @db.url@
+    username: @db.user@
+    password: @db.password@
+    hikari.maximum-pool-size: 10
+  flyway:
+    table: schema_version
+    schemas: wb_dispatch
+    url: @db.url@
+
+hibernate:
+  physical_naming_strategy: dev.vality.webhook.dispatcher.entity.naming.SnakeCaseNamingStrategy
+
+info:
+  version: @project.version@
+  stage: dev
+
+kafka:
+  bootstrap.servers: "localhost:29092"
+  topic:
+    webhook:
+      forward: webhook-forward
+      first.retry: webhook-first-retry
+      second.retry: webhook-second-retry
+      third.retry: webhook-third-retry
+      last.retry: webhook-last-retry
+      dead.letter.queue: webhook-dead-letter-queue
+  concurrency:
+    forward: 1
+    first.retry: 1
+    second.retry: 1
+    third.retry: 1
+    last.retry: 1
+    dead.letter.queue: 1
+  ssl:
+    enable: false
+    keystore-location: src/main/resources/cert/kenny-k.struzhkin.p12
+    keystore-password: kenny
+    key-password: kenny
+    server-password: kenny12
+    server-keystore-location: src/
+  consumer:
+    max-poll-interval-ms: 60000
+    session-timeout-ms: 60000
+
+merchant:
+  timeout: 10000
+  max.per.route: 20
+  max.total: 1000
+
+retry:
+  first.seconds: 30
+  second.seconds: 600
+  third.seconds: 1800
+  last.seconds: 3600
+  dead.time.hours: 24
