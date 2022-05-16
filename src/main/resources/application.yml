@@ -1,11 +1,11 @@
 server:
-  port: @server.port@
+  port: '@server.port@'
 
 management:
   security:
     flag: false
   server:
-    port: @management.port@
+    port: '@management.port@'
   metrics:
     export:
       statsd:
@@ -27,7 +27,7 @@ management:
 
 spring:
   application:
-    name: @project.name@
+    name: '@project.name@'
   output:
     ansi:
       enabled: always
@@ -39,20 +39,20 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: org.postgresql.Driver
-    url: @db.url@
-    username: @db.user@
-    password: @db.password@
+    url: '@db.url@'
+    username: '@db.user@'
+    password: '@db.password@'
     hikari.maximum-pool-size: 10
   flyway:
     table: schema_version
     schemas: wb_dispatch
-    url: @db.url@
+    url: '@db.url@'
 
 hibernate:
   physical_naming_strategy: dev.vality.webhook.dispatcher.entity.naming.SnakeCaseNamingStrategy
 
 info:
-  version: @project.version@
+  version: '@project.version@'
   stage: dev
 
 kafka:
