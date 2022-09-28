@@ -31,10 +31,6 @@
     <dependencies>
         <!--rbkmoney-->
         <dependency>
-            <groupId>dev.vality</groupId>
-            <artifactId>custom-metrics-spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
             <groupId>dev.vality.woody</groupId>
             <artifactId>woody-thrift</artifactId>
         </dependency>
@@ -54,10 +50,6 @@
         <dependency>
             <groupId>dev.vality</groupId>
             <artifactId>db-common-lib</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>dev.vality</groupId>
-            <artifactId>custom-actuator-endpoints</artifactId>
         </dependency>
         <dependency>
             <groupId>dev.vality.geck</groupId>
