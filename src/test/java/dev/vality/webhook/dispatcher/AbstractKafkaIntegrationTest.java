@@ -67,7 +67,7 @@ public abstract class AbstractKafkaIntegrationTest extends DaoTestBase {
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
             TestPropertyValues
-                    .of("kafka.bootstrap.servers=" + kafka.getBootstrapServers())
+                    .of("spring.kafka.bootstrap-servers=" + kafka.getBootstrapServers())
                     .applyTo(configurableApplicationContext.getEnvironment());
             initTopic(WEBHOOK_FORWARD);
             initTopic(WEBHOOK_FIRST_RETRY);
