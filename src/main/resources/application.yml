@@ -47,6 +47,16 @@ spring:
     table: schema_version
     schemas: wb_dispatch
     url: '@db.url@'
+  kafka:
+    bootstrap-servers: "localhost:29092"
+    consumer:
+      group-id: WebHookDispatcherListener
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+      max-poll-records: 1
+      properties:
+        max.poll.interval.ms: 60000
+        session.timeout.ms: 60000
 
 hibernate:
   physical_naming_strategy: dev.vality.webhook.dispatcher.entity.naming.SnakeCaseNamingStrategy
@@ -56,7 +66,6 @@ info:
   stage: dev
 
 kafka:
-  bootstrap.servers: "localhost:29092"
   topic:
     webhook:
       forward: webhook-forward
@@ -72,16 +81,6 @@ kafka:
     third.retry: 1
     last.retry: 1
     dead.letter.queue: 1
-  ssl:
-    enable: false
-    keystore-location: src/main/resources/cert/kenny-k.struzhkin.p12
-    keystore-password: kenny
-    key-password: kenny
-    server-password: kenny12
-    server-keystore-location: src/
-  consumer:
-    max-poll-interval-ms: 60000
-    session-timeout-ms: 60000
 
 merchant:
   timeout: 10000
