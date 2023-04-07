@@ -1,6 +1,7 @@
 package dev.vality.webhook.dispatcher.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.NoConnectionReuseStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -26,6 +27,7 @@ public class HttpClientConfig {
                 .setConnectTimeout(timeout)
                 .setConnectionRequestTimeout(timeout)
                 .setSocketTimeout(timeout)
+                .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
                 .build();
         return HttpClientBuilder.create()
                 .setDefaultRequestConfig(config)
