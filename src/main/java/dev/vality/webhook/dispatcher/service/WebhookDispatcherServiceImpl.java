@@ -34,7 +34,8 @@ public class WebhookDispatcherServiceImpl implements WebhookDispatcherService {
             log.info("Response from hook: sourceId: {}, eventId: {}, code: {}; body: {}", webhookMessage.getSourceId(),
                     webhookMessage.getEventId(),
                     statusCode, EntityUtils.toString(response.getEntity(), "UTF-8"));
-            if (HttpStatus.valueOf(statusCode).is2xxSuccessful()) {
+            HttpStatus httpStatus = HttpStatus.resolve(statusCode);
+            if (httpStatus != null && HttpStatus.valueOf(statusCode).is2xxSuccessful()) {
                 return statusCode;
             } else {
                 log.warn("Timeout error when send webhook: {} statusCode: {} reason: {}", webhookMessage.getSourceId(),
