@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>webhook-dispatcher</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>webhook-dispatcher</name>
 
@@ -132,7 +132,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>29.0-jre</version>
+            <version>32.0.1-jre</version>
         </dependency>
         <dependency>
             <groupId>software.amazon.msk</groupId>
