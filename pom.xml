@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>webhook-dispatcher</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>webhook-dispatcher</name>
 
@@ -148,7 +148,7 @@
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock</artifactId>
-            <version>2.27.2</version>
+            <version>3.0.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
