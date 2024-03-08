@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>webhook-dispatcher</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>webhook-dispatcher</name>
 
@@ -165,13 +165,12 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
-            <version>1.17.1</version>
-            <scope>test</scope>
+            <version>1.17.1</v1.19.7</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>kafka</artifactId>
-            <version>1.17.3</version>
+            <version>1.19.7</version>
             <scope>test</scope>
         </dependency>
 
