@@ -9,8 +9,8 @@ import dev.vality.webhook.dispatcher.service.WebhookDispatcherService;
 import dev.vality.webhook.dispatcher.service.WebhookDispatcherServiceImpl;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -18,17 +18,19 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.util.concurrent.ListenableFuture;
 
+import java.time.Instant;
 import java.util.HashMap;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class WebhookListenerTest {
+class WebhookListenerTest {
 
     private WebhookListener webhookListener;
 
     @Mock
-    private WebhookDao webhookDaoImpl;
+    private WebhookDao webhookDao;
     @Mock
     private KafkaTemplate<String, WebhookMessage> kafkaTemplate;
     @Mock
@@ -36,7 +38,7 @@ public class WebhookListenerTest {
     @Mock
     private ListenableFuture<SendResult<String, WebhookMessage>> result;
 
-    @Before
+    @BeforeEach
     public void init() {
         MockitoAnnotations.initMocks(this);
         WebhookDispatcherService webhookDispatcherService = new WebhookDispatcherServiceImpl(HttpClientBuilder.create()
@@ -50,18 +52,18 @@ public class WebhookListenerTest {
         webhookListener = new WebhookListener(
                 new WebhookHandlerImpl(
                         webhookDispatcherService,
-                        new PostponedDispatchFilter(webhookDaoImpl),
-                        new DeadRetryDispatchFilter(webhookDaoImpl), webhookDaoImpl, kafkaTemplate));
+                        new PostponedDispatchFilter(webhookDao),
+                        new DeadRetryDispatchFilter(webhookDao), webhookDao, kafkaTemplate));
     }
 
     @Test
-    public void listen() {
-        when(webhookDaoImpl.isCommitted(any())).thenReturn(false);
+    void listen() {
+        when(webhookDao.isCommitted(any())).thenReturn(false);
         when(kafkaTemplate.send(any(), any(), any())).thenReturn(result);
 
         WebhookMessage webhookMessage = new WebhookMessage();
         webhookMessage.setUrl("https://webhook.site/e312eefc-54fc-4bca-928e-26f0fc95fc80");
-        webhookMessage.setCreatedAt("2019-08-29T10:16:51.804170Z");
+        webhookMessage.setCreatedAt(Instant.now().toString());
         webhookMessage.setSourceId("547839");
         HashMap<String, String> additionalHeaders = new HashMap<>();
         additionalHeaders.put("Content-Signature", "alg=RS256");
@@ -80,5 +82,6 @@ public class WebhookListenerTest {
         webhookMessage.setRequestBody("{}".getBytes());
 
         webhookListener.listen(webhookMessage, acknowledgment);
+        verify(webhookDao).bury(any(WebhookMessage.class));
     }
 }

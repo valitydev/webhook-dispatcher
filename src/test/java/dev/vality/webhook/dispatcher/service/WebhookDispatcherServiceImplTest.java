@@ -4,20 +4,28 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import dev.vality.kafka.common.exception.RetryableException;
 import dev.vality.webhook.dispatcher.WebhookMessage;
+import dev.vality.webhook.dispatcher.config.PostgresqlSpringBootITest;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 
 import java.util.HashMap;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
-public class WebhookDispatcherServiceImplTest {
+@AutoConfigureWireMock(port = 8089)
+@PostgresqlSpringBootITest
+class WebhookDispatcherServiceImplTest {
 
     private static final String ALG_RS_256 = "alg=RS256";
     private static final String DIGEST =
@@ -27,23 +35,13 @@ public class WebhookDispatcherServiceImplTest {
                     "XBCvWggqORPpZ_6J1oNbh1QqEBC9CqDU94d8GthzqxH3V7nIPdpYmg8VxbR9k5SGXf8zbIDWxWMzVfKQF4B1B1CtO" +
                     "46loD70cmOX2kMl32" +
                     "WJa_XSV8Ep1ajDnouLyxk4eN-F-Fb1XkUWUJPw0JkKAVhp2F4NxzQ==";
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(8089);
-    private WebhookDispatcherServiceImpl webhookDispatcherService;
 
-    @Before
-    public void init() {
-        RequestConfig config = RequestConfig.custom()
-                .setConnectTimeout(1000)
-                .setConnectionRequestTimeout(1000)
-                .setSocketTimeout(1000).build();
-        CloseableHttpClient httpClient = HttpClientBuilder.create().setDefaultRequestConfig(config).build();
-        webhookDispatcherService = new WebhookDispatcherServiceImpl(httpClient);
-    }
+    @Autowired
+    private WebhookDispatcherService webhookDispatcherService;
 
 
-    @Test(expected = RetryableException.class)
-    public void dispatchError() {
+    @Test
+    void dispatchError() {
         stubFor(post(urlEqualTo("/test"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -57,11 +55,11 @@ public class WebhookDispatcherServiceImplTest {
         webhookMessage.setContentType(ContentType.APPLICATION_JSON.getMimeType());
         HashMap<String, String> additionalHeaders = new HashMap<>();
         webhookMessage.setAdditionalHeaders(additionalHeaders);
-        webhookDispatcherService.dispatch(webhookMessage);
+        assertThrows(RetryableException.class, () -> webhookDispatcherService.dispatch(webhookMessage));
     }
 
     @Test
-    public void dispatch() {
+    void dispatch() {
         stubFor(post(urlEqualTo("/test"))
                 .withHeader(CONTENT_TYPE, new EqualToPattern(ContentType.APPLICATION_JSON.getMimeType()))
                 .withHeader("Content-Signature", new EqualToPattern(ALG_RS_256))
@@ -79,6 +77,6 @@ public class WebhookDispatcherServiceImplTest {
         additionalHeaders.put("Content-Signature", ALG_RS_256);
         additionalHeaders.put("digest", DIGEST);
         webhookMessage.setAdditionalHeaders(additionalHeaders);
-        webhookDispatcherService.dispatch(webhookMessage);
+        assertDoesNotThrow(() -> webhookDispatcherService.dispatch(webhookMessage));
     }
 }

@@ -1,22 +1,19 @@
 package dev.vality.webhook.dispatcher.dao;
 
-import dev.vality.webhook.dispatcher.WebhookDispatcherApplication;
 import dev.vality.webhook.dispatcher.WebhookMessage;
+import dev.vality.webhook.dispatcher.config.PostgresqlSpringBootITest;
 import dev.vality.webhook.dispatcher.repository.DeadWebhookRepository;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = WebhookDispatcherApplication.class)
-public class WebhookDaoImplTest extends DaoTestBase {
+
+@PostgresqlSpringBootITest
+class WebhookDaoImplTest {
 
     @Autowired
     private WebhookDao webhookDao;
@@ -25,7 +22,7 @@ public class WebhookDaoImplTest extends DaoTestBase {
     private DeadWebhookRepository deadWebhookRepository;
 
     @Test
-    public void shouldCommitWebhooks() {
+    void shouldCommitWebhooks() {
         // Given
         WebhookMessage webhook = new WebhookMessage();
         webhook.setSourceId("test");
@@ -49,7 +46,7 @@ public class WebhookDaoImplTest extends DaoTestBase {
     }
 
     @Test
-    public void shouldBuryWebhooks() {
+    void shouldBuryWebhooks() {
         // Given
         WebhookMessage webhook = new WebhookMessage();
         webhook.setWebhookId(0L);
