@@ -70,7 +70,13 @@ class WebhookListenerTest {
         when(kafkaTemplate.send(any(), any(), any())).thenReturn(result);
         CloseableHttpResponse mockResponse = Mockito.mock(CloseableHttpResponse.class);
         when(client.execute(any())).thenReturn(mockResponse);
-        when(mockResponse.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_OK, "OK"));
+        BasicStatusLine statusLine = new BasicStatusLine(
+                new ProtocolVersion("HTTP", 1, 1),
+                HttpStatus.SC_OK,
+                "OK"
+        );
+        when(mockResponse.getStatusLine())
+                .thenReturn(statusLine);
         HttpEntity entity = EntityBuilder.create().setContentEncoding("utf-8")
                 .setContentType(ContentType.APPLICATION_JSON)
                 .setText("{\"response\" : {\"status\" : \"ok\"  }}").build();
