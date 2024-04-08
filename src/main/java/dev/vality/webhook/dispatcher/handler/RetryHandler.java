@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class RetryHandler {
 
     public static final long WAITING_PERIOD = 500L;
-    private final WebhookHandlerImpl handler;
+    private final WebhookHandler handler;
     private final TimeDispatchFilter timeDispatchFilter;
 
     public void handle(

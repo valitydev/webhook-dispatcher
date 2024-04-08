@@ -1,10 +1,8 @@
 package dev.vality.webhook.dispatcher.prototype;
 
 import lombok.AllArgsConstructor;
-import org.assertj.core.api.Assertions;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -14,7 +12,10 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeoutException;
 
-public class WebhookDispatcherPrototypeTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class WebhookDispatcherPrototypeTest {
 
     LinkedBlockingQueue<Model> forwardQueue = new LinkedBlockingQueue<>();
     LinkedBlockingQueue<Model> firstRetryQueue = new LinkedBlockingQueue<>();
@@ -26,20 +27,20 @@ public class WebhookDispatcherPrototypeTest {
     @Mock
     RemoteClient remoteClient;
 
-    @Before
+    @BeforeEach
     public void init() {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void prototypeModel() throws InterruptedException, TimeoutException {
+    void prototypeModel() throws InterruptedException, TimeoutException {
         forwardQueue.put(new Model("1", 1));
         forwardQueue.put(new Model("1", 2));
         forwardQueue.put(new Model("1", 3));
 
         iterateThreeMessage(forwardQueue, firstRetryQueue);
 
-        Assertions.assertThat(commitMap.keySet()).containsExactly("11", "12", "13");
+        assertThat(commitMap.keySet()).containsExactly("11", "12", "13");
     }
 
     private void iterateThreeMessage(LinkedBlockingQueue<Model> forwardQueue,
@@ -52,7 +53,7 @@ public class WebhookDispatcherPrototypeTest {
     }
 
     @Test
-    public void prototypeModelRetry() throws InterruptedException, TimeoutException {
+    void prototypeModelRetry() throws InterruptedException, TimeoutException {
 
         Mockito.when(remoteClient.invoke()).thenThrow(new TimeoutException());
 
@@ -63,7 +64,7 @@ public class WebhookDispatcherPrototypeTest {
 
         iterateThreeMessage(forwardQueue, firstRetryQueue);
 
-        Assert.assertEquals(firstRetryQueue.size(), 3);
+        assertEquals(firstRetryQueue.size(), 3);
 
         Model event = firstRetryQueue.poll();
         checkAndCommit(event, secondRetryQueue);
@@ -78,11 +79,11 @@ public class WebhookDispatcherPrototypeTest {
         event = firstRetryQueue.poll();
         checkAndCommit(event, secondRetryQueue);
 
-        Assert.assertEquals(3, secondRetryQueue.size());
+        assertEquals(3, secondRetryQueue.size());
 
         iterateThreeMessage(secondRetryQueue, thirdRetryQueue);
 
-        Assertions.assertThat(commitMap.keySet()).containsExactly("11", "12", "13");
+        assertThat(commitMap.keySet()).containsExactly("11", "12", "13");
     }
 
     private void checkAndCommit(Model event, LinkedBlockingQueue<Model> retryQueue) throws InterruptedException {

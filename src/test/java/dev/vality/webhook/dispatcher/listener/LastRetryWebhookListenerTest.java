@@ -9,8 +9,8 @@ import dev.vality.webhook.dispatcher.handler.RetryHandler;
 import dev.vality.webhook.dispatcher.handler.WebhookHandlerImpl;
 import dev.vality.webhook.dispatcher.service.WebhookDispatcherService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -19,11 +19,11 @@ import org.springframework.kafka.support.Acknowledgment;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class LastRetryWebhookListenerTest {
+class LastRetryWebhookListenerTest {
 
     private static final long DEFAULT_TIMEOUT = 1L;
     private static final String TOPIC = "test";
@@ -48,7 +48,7 @@ public class LastRetryWebhookListenerTest {
     @Mock
     private ConsumerSeekAware.ConsumerSeekCallback consumerSeekCallback;
 
-    @Before
+    @BeforeEach
     public void init() {
         MockitoAnnotations.initMocks(this);
         WebhookHandlerImpl handler = new WebhookHandlerImpl(
@@ -62,7 +62,7 @@ public class LastRetryWebhookListenerTest {
     }
 
     @Test
-    public void listen() throws IOException {
+    void listen() throws IOException {
         LastRetryWebhookListener lastRetryWebhookListener = new LastRetryWebhookListener(TOPIC, DEFAULT_TIMEOUT,
                 DEFAULT_TIMEOUT, DEFAULT_TIMEOUT, DEFAULT_TIMEOUT, handler);
         lastRetryWebhookListener.registerSeekCallback(consumerSeekCallback);

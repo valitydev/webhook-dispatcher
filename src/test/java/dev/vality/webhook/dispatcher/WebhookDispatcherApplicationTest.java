@@ -1,38 +1,44 @@
 package dev.vality.webhook.dispatcher;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import dev.vality.testcontainers.annotations.KafkaSpringBootTest;
+import dev.vality.testcontainers.annotations.kafka.KafkaTestcontainer;
+import dev.vality.testcontainers.annotations.kafka.config.KafkaProducer;
+import dev.vality.testcontainers.annotations.postgresql.PostgresqlTestcontainerSingleton;
 import dev.vality.webhook.dispatcher.dao.WebhookDao;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.thrift.TBase;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = WebhookDispatcherApplication.class)
-@TestPropertySource(properties = "merchant.timeout=1")
-public class WebhookDispatcherApplicationTest extends AbstractKafkaIntegrationTest {
+@KafkaTestcontainer(
+        properties = {"merchant.timeout=1", "kafka.topic.concurrency.forward=1"},
+        topicsKeys = {"kafka.topic.webhook.forward", "kafka.topic.webhook.first.retry",
+                "kafka.topic.webhook.second.retry", "kafka.topic.webhook.third.retry",
+                "kafka.topic.webhook.last.retry", "kafka.topic.webhook.dead.letter.queue"})
+@KafkaSpringBootTest
+@PostgresqlTestcontainerSingleton
+@AutoConfigureWireMock(port = 8089)
+public class WebhookDispatcherApplicationTest {
+
+    @Value("${kafka.topic.webhook.forward}")
+    private String forwardTopicName;
 
     public static final String URL = "http://localhost:8089";
     public static final String APPLICATION_JSON = "application/json";
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(8089);
     @Autowired
     private WebhookDao webhookDao;
+    @Autowired
+    private KafkaProducer<TBase<?, ?>> testThriftKafkaProducer;
 
     @Test
-    public void listenCreatedTimeout() throws ExecutionException, InterruptedException {
+    void listenCreatedTimeout() throws InterruptedException {
         String response = "{}";
         stubFor(
                 post(urlEqualTo("/"))
@@ -46,11 +52,7 @@ public class WebhookDispatcherApplicationTest extends AbstractKafkaIntegrationTe
         WebhookMessage webhook = createWebhook(sourceId, Instant.now().toString(), 0);
         webhook.setRequestBody("{\"test\":\"test\"}".getBytes());
 
-        ProducerRecord producerRecord = new ProducerRecord<>(Initializer.WEBHOOK_FORWARD, webhook.source_id, webhook);
-        Producer<String, WebhookMessage> producer = createProducer();
-
-        producer.send(producerRecord).get();
-        producer.close();
+        testThriftKafkaProducer.send(forwardTopicName, webhook);
 
         Thread.sleep(4500L);
 
@@ -62,13 +64,10 @@ public class WebhookDispatcherApplicationTest extends AbstractKafkaIntegrationTe
                                 .withHeader("Content-Type", APPLICATION_JSON)
                                 .withBody(response)));
 
-        producer = createProducer();
-
         webhook = createWebhook(sourceId, Instant.now().toString(), 1);
         webhook.setParentEventId(1);
-        producerRecord = new ProducerRecord<>(Initializer.WEBHOOK_FORWARD, webhook.source_id, webhook);
-        producer.send(producerRecord).get();
-        producer.close();
+
+        testThriftKafkaProducer.send(forwardTopicName, webhook);
 
         Thread.sleep(4500L);
 

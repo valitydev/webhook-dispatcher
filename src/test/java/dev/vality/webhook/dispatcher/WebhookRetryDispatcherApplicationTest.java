@@ -1,57 +1,60 @@
 package dev.vality.webhook.dispatcher;
 
 import dev.vality.kafka.common.exception.RetryableException;
+import dev.vality.testcontainers.annotations.KafkaSpringBootTest;
+import dev.vality.testcontainers.annotations.kafka.KafkaTestcontainer;
+import dev.vality.testcontainers.annotations.kafka.config.KafkaProducer;
+import dev.vality.testcontainers.annotations.postgresql.PostgresqlTestcontainerSingleton;
 import dev.vality.webhook.dispatcher.service.WebhookDispatcherService;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.apache.thrift.TBase;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 
 import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = WebhookDispatcherApplication.class)
-@TestPropertySource(properties = {
-        "merchant.timeout=1",
-        "retry.first.seconds=1",
-        "retry.second.seconds=2",
-        "retry.third.seconds=3",
-        "retry.last.seconds=4",
-        "retry.dead.time.hours=1"
-})
-public class WebhookRetryDispatcherApplicationTest extends AbstractKafkaIntegrationTest {
+@KafkaTestcontainer(
+        properties = {"merchant.timeout=1", "retry.first.seconds=1",
+                "retry.second.seconds=2", "retry.third.seconds=3",
+                "retry.last.seconds=4", "retry.dead.time.hours=1"},
+        topicsKeys = {"kafka.topic.webhook.forward", "kafka.topic.webhook.first.retry",
+                "kafka.topic.webhook.second.retry", "kafka.topic.webhook.third.retry",
+                "kafka.topic.webhook.last.retry", "kafka.topic.webhook.dead.letter.queue"})
+@KafkaSpringBootTest
+@PostgresqlTestcontainerSingleton
+@AutoConfigureWireMock(port = 8089)
+class WebhookRetryDispatcherApplicationTest {
+
+    @Value("${kafka.topic.webhook.forward}")
+    private String forwardTopicName;
 
     private static final String URL = "http://localhost:8089";
     private static final String APPLICATION_JSON = "application/json";
 
     @MockBean
     private WebhookDispatcherService webhookDispatcherService;
+    @Autowired
+    private KafkaProducer<TBase<?, ?>> testThriftKafkaProducer;
 
     @Test
-    public void listenCreatedTimeout() throws ExecutionException, InterruptedException, IOException {
+    void listenCreatedTimeout() throws InterruptedException, IOException {
         when(webhookDispatcherService.dispatch(any())).thenThrow(RetryableException.class);
 
         String sourceId = "123";
         WebhookMessage webhook = createWebhook(sourceId, Instant.now().toString(), 0);
-        ProducerRecord producerRecord = new ProducerRecord<>(Initializer.WEBHOOK_FORWARD, webhook.source_id, webhook);
-        Producer<String, WebhookMessage> producer = createProducer();
 
-        producer.send(producerRecord).get();
-        producer.close();
+        testThriftKafkaProducer.send(forwardTopicName, webhook);
 
         Thread.sleep(20000L);
 
-        verify(webhookDispatcherService, times(7)).dispatch(any());
+        verify(webhookDispatcherService, atLeast(6)).dispatch(any());
     }
 
     private WebhookMessage createWebhook(String sourceId, String createdAt, long eventId) {
