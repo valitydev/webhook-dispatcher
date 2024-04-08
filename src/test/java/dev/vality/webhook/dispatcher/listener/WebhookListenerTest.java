@@ -7,17 +7,26 @@ import dev.vality.webhook.dispatcher.filter.PostponedDispatchFilter;
 import dev.vality.webhook.dispatcher.handler.WebhookHandlerImpl;
 import dev.vality.webhook.dispatcher.service.WebhookDispatcherService;
 import dev.vality.webhook.dispatcher.service.WebhookDispatcherServiceImpl;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpStatus;
+import org.apache.http.ProtocolVersion;
+import org.apache.http.client.entity.EntityBuilder;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.message.BasicStatusLine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.concurrent.ListenableFuture;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
 
@@ -38,28 +47,34 @@ class WebhookListenerTest {
     @Mock
     private ListenableFuture<SendResult<String, WebhookMessage>> result;
 
+    @Mock
+    private CloseableHttpClient client;
+
     @BeforeEach
     public void init() {
-        MockitoAnnotations.initMocks(this);
-        WebhookDispatcherService webhookDispatcherService = new WebhookDispatcherServiceImpl(HttpClientBuilder.create()
-                .setDefaultRequestConfig(RequestConfig.custom()
-                        .setConnectTimeout(60000)
-                        .setConnectionRequestTimeout(60000)
-                        .setSocketTimeout(60000)
-                        .build())
-                .build());
+        MockitoAnnotations.openMocks(this);
+        WebhookDispatcherService webhookDispatcherService = new WebhookDispatcherServiceImpl(client);
 
+        DeadRetryDispatchFilter deadRetryDispatchFilter = new DeadRetryDispatchFilter(webhookDao);
+        ReflectionTestUtils.setField(deadRetryDispatchFilter, "deadRetryTimeout", 24);
         webhookListener = new WebhookListener(
                 new WebhookHandlerImpl(
                         webhookDispatcherService,
                         new PostponedDispatchFilter(webhookDao),
-                        new DeadRetryDispatchFilter(webhookDao), webhookDao, kafkaTemplate));
+                        deadRetryDispatchFilter, webhookDao, kafkaTemplate));
     }
 
     @Test
-    void listen() {
+    void listen() throws IOException {
         when(webhookDao.isCommitted(any())).thenReturn(false);
         when(kafkaTemplate.send(any(), any(), any())).thenReturn(result);
+        CloseableHttpResponse mockResponse = Mockito.mock(CloseableHttpResponse.class);
+        when(client.execute(any())).thenReturn(mockResponse);
+        when(mockResponse.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_OK, "OK"));
+        HttpEntity entity = EntityBuilder.create().setContentEncoding("utf-8")
+                .setContentType(ContentType.APPLICATION_JSON)
+                .setText("{\"response\" : {\"status\" : \"ok\"  }}").build();
+        when(mockResponse.getEntity()).thenReturn(entity);
 
         WebhookMessage webhookMessage = new WebhookMessage();
         webhookMessage.setUrl("https://webhook.site/e312eefc-54fc-4bca-928e-26f0fc95fc80");

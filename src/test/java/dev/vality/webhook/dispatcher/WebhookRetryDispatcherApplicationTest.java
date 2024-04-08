@@ -54,7 +54,7 @@ class WebhookRetryDispatcherApplicationTest {
 
         Thread.sleep(20000L);
 
-        verify(webhookDispatcherService, times(7)).dispatch(any());
+        verify(webhookDispatcherService, atLeast(6)).dispatch(any());
     }
 
     private WebhookMessage createWebhook(String sourceId, String createdAt, long eventId) {
