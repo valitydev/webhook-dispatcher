@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface DeadWebhookRepository extends JpaRepository<DeadWebhookEntity, String> {
 
     Optional<DeadWebhookEntity> findByWebhookIdAndSourceIdAndEventId(long webhookId, String sourceId, long eventId);
+
+    void deleteByWebhookIdAndSourceIdAndEventId(long webhookId, String sourceId, long eventId);
 }
