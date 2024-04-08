@@ -3,32 +3,32 @@ package dev.vality.webhook.dispatcher;
 import dev.vality.testcontainers.annotations.KafkaSpringBootTest;
 import dev.vality.testcontainers.annotations.kafka.KafkaTestcontainer;
 import dev.vality.testcontainers.annotations.kafka.config.KafkaProducer;
-import dev.vality.testcontainers.annotations.kafka.config.KafkaProducerConfig;
 import dev.vality.testcontainers.annotations.postgresql.PostgresqlTestcontainerSingleton;
 import dev.vality.webhook.dispatcher.dao.WebhookDao;
 import org.apache.thrift.TBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
-import org.springframework.context.annotation.Import;
 
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @KafkaTestcontainer(
-        properties = "merchant.timeout=1",
-        topicsKeys = {"kafka.topic.webhook.forward","kafka.topic.webhook.first.retry",
+        properties = {"merchant.timeout=1", "kafka.topic.concurrency.forward=1"},
+        topicsKeys = {"kafka.topic.webhook.forward", "kafka.topic.webhook.first.retry",
                 "kafka.topic.webhook.second.retry", "kafka.topic.webhook.third.retry",
                 "kafka.topic.webhook.last.retry", "kafka.topic.webhook.dead.letter.queue"})
 @KafkaSpringBootTest
 @PostgresqlTestcontainerSingleton
-@Import(KafkaProducerConfig.class)
 @AutoConfigureWireMock(port = 8089)
 public class WebhookDispatcherApplicationTest {
+
+    @Value("${kafka.topic.webhook.forward}")
+    private String forwardTopicName;
 
     public static final String URL = "http://localhost:8089";
     public static final String APPLICATION_JSON = "application/json";
@@ -37,10 +37,8 @@ public class WebhookDispatcherApplicationTest {
     @Autowired
     private KafkaProducer<TBase<?, ?>> testThriftKafkaProducer;
 
-    public static final String WEBHOOK_FORWARD = "webhook-forward";
-
     @Test
-    void listenCreatedTimeout() throws ExecutionException, InterruptedException {
+    void listenCreatedTimeout() throws InterruptedException {
         String response = "{}";
         stubFor(
                 post(urlEqualTo("/"))
@@ -54,7 +52,7 @@ public class WebhookDispatcherApplicationTest {
         WebhookMessage webhook = createWebhook(sourceId, Instant.now().toString(), 0);
         webhook.setRequestBody("{\"test\":\"test\"}".getBytes());
 
-        testThriftKafkaProducer.send(WEBHOOK_FORWARD, webhook);
+        testThriftKafkaProducer.send(forwardTopicName, webhook);
 
         Thread.sleep(4500L);
 
@@ -69,7 +67,7 @@ public class WebhookDispatcherApplicationTest {
         webhook = createWebhook(sourceId, Instant.now().toString(), 1);
         webhook.setParentEventId(1);
 
-        testThriftKafkaProducer.send(WEBHOOK_FORWARD, webhook);
+        testThriftKafkaProducer.send(forwardTopicName, webhook);
 
         Thread.sleep(4500L);
 

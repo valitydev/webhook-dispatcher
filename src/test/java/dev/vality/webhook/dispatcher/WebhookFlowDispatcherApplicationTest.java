@@ -10,28 +10,17 @@ import org.apache.thrift.TBase;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.context.annotation.Import;
 
 import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
 
-import static dev.vality.webhook.dispatcher.WebhookDispatcherApplicationTest.WEBHOOK_FORWARD;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
-//@RunWith(SpringRunner.class)
-//@SpringBootTest(classes = WebhookDispatcherApplication.class)
-//@TestPropertySource(properties = {
-//        "merchant.timeout=1",
-//        "retry.first.seconds=1",
-//        "retry.second.seconds=2",
-//        "retry.third.seconds=3",
-//        "retry.last.seconds=4",
-//        "retry.dead.time.hours=20"
-//})
 
 @KafkaTestcontainer(
         properties = {"merchant.timeout=1", "retry.first.seconds=1",
@@ -43,8 +32,11 @@ import static org.mockito.Mockito.*;
 @KafkaSpringBootTest
 @PostgresqlTestcontainerSingleton
 @Import(KafkaProducerConfig.class)
-//@AutoConfigureWireMock(port = 8089)
+@AutoConfigureWireMock(port = 8089)
 class WebhookFlowDispatcherApplicationTest {
+
+    @Value("${kafka.topic.webhook.forward}")
+    private String forwardTopicName;
 
     private static final String URL = "http://localhost:8089";
     private static final String APPLICATION_JSON = "application/json";
@@ -63,8 +55,8 @@ class WebhookFlowDispatcherApplicationTest {
         WebhookMessage webhook = createWebhook(sourceId, Instant.now().toString(), 0);
 
         //check duplicates
-        testThriftKafkaProducer.send(WEBHOOK_FORWARD, webhook);
-        testThriftKafkaProducer.send(WEBHOOK_FORWARD, webhook);
+        testThriftKafkaProducer.send(forwardTopicName, webhook);
+        testThriftKafkaProducer.send(forwardTopicName, webhook);
         Thread.sleep(5000L);
         verify(webhookDispatcherService, times(1)).dispatch(any());
 
@@ -73,13 +65,13 @@ class WebhookFlowDispatcherApplicationTest {
         webhook.setParentEventId(0);
         webhook.setEventId(1);
         webhook.setSourceId(SOURCE_ID);
-        testThriftKafkaProducer.send(WEBHOOK_FORWARD, webhook);
+        testThriftKafkaProducer.send(forwardTopicName, webhook);
 
         Thread.sleep(5000L);
         verify(webhookDispatcherService, times(0)).dispatch(any());
         webhook.setParentEventId(-1);
         webhook.setEventId(0);
-        testThriftKafkaProducer.send(WEBHOOK_FORWARD, webhook);
+        testThriftKafkaProducer.send(forwardTopicName, webhook);
 
         Thread.sleep(5000L);
 
