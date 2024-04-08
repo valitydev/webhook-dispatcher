@@ -82,6 +82,7 @@ class WebhookListenerTest {
         webhookMessage.setRequestBody("{}".getBytes());
 
         webhookListener.listen(webhookMessage, acknowledgment);
-        verify(webhookDao).bury(any(WebhookMessage.class));
+        verify(webhookDao).isCommitted(any(WebhookMessage.class));
+        verify(webhookDao).commit(any(WebhookMessage.class));
     }
 }
