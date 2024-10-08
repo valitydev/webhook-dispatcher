@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>webhook-dispatcher</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>webhook-dispatcher</name>
 
@@ -26,7 +26,7 @@
         <db.user>postgres</db.user>
         <db.password>postgres</db.password>
         <db.schema>wb_dispatch</db.schema>
-        <wiremock.version>2.32.0</wiremock.version>
+        <wiremock.version>2.35.1</wiremock.version>
     </properties>
 
     <dependencies>
