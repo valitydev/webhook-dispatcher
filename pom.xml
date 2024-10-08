@@ -26,6 +26,7 @@
         <db.user>postgres</db.user>
         <db.password>postgres</db.password>
         <db.schema>wb_dispatch</db.schema>
+        <wiremock.version>2.32.0</wiremock.version>
     </properties>
 
     <dependencies>
@@ -160,6 +161,12 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-contract-wiremock</artifactId>
             <version>3.1.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-jre8-standalone</artifactId>
+            <version>${wiremock.version}</version>
             <scope>test</scope>
         </dependency>
 
