@@ -26,7 +26,7 @@
         <db.user>postgres</db.user>
         <db.password>postgres</db.password>
         <db.schema>wb_dispatch</db.schema>
-        <wiremock.version>2.32.0</wiremock.version>
+        <wiremock.version>3.0.1</wiremock.version>
     </properties>
 
     <dependencies>
