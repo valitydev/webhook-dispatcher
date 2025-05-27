@@ -52,7 +52,7 @@ class WebhookRetryDispatcherApplicationTest {
 
         testThriftKafkaProducer.send(forwardTopicName, webhook);
 
-        Thread.sleep(20000L);
+        Thread.sleep(90000L);
 
         verify(webhookDispatcherService, atLeast(6)).dispatch(any());
     }

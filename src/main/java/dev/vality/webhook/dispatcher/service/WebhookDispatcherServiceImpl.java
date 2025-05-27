@@ -29,11 +29,15 @@ public class WebhookDispatcherServiceImpl implements WebhookDispatcherService {
         post.setEntity(new ByteArrayEntity(webhookMessage.getRequestBody()));
         post.setHeader(CONTENT_TYPE, webhookMessage.getContentType());
         webhookMessage.getAdditionalHeaders().forEach(post::addHeader);
+        long executionTimeStart = System.currentTimeMillis();
         try (CloseableHttpResponse response = client.execute(post)) {
             int statusCode = response.getStatusLine().getStatusCode();
-            log.info("Response from hook: sourceId: {}, eventId: {}, code: {}; body: {}", webhookMessage.getSourceId(),
+            log.info("Response from hook: sourceId: {}, eventId: {}, code: {}; executionTimeMs: {} body: {}",
+                    webhookMessage.getSourceId(),
                     webhookMessage.getEventId(),
-                    statusCode, EntityUtils.toString(response.getEntity(), "UTF-8"));
+                    statusCode,
+                    executionTimeStart - System.currentTimeMillis(),
+                    EntityUtils.toString(response.getEntity(), "UTF-8"));
             HttpStatus httpStatus = HttpStatus.resolve(statusCode);
             if (httpStatus != null && HttpStatus.valueOf(statusCode).is2xxSuccessful()) {
                 return statusCode;
