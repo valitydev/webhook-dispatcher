@@ -1,9 +1,9 @@
 server:
-  port: '${server.port}'
+  port: ${server.port}
 
 management:
   server:
-    port: '${management.port}'
+    port: ${management.port}
   endpoint:
     health:
       show-details: always
@@ -22,7 +22,7 @@ management:
 
 spring:
   application:
-    name: '${project.name}'
+    name: ${project.name}
   output:
     ansi:
       enabled: always
@@ -34,9 +34,9 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: org.postgresql.Driver
-    url: '${db.url}'
-    username: '${db.user}'
-    password: '${db.password}'
+    url: ${db.url}
+    username: ${db.user}
+    password: ${db.password}
     hikari.maximum-pool-size: 10
   kafka:
     bootstrap-servers: "localhost:29092"

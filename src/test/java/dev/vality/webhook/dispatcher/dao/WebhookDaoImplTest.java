@@ -1,7 +1,7 @@
 package dev.vality.webhook.dispatcher.dao;
 
 import dev.vality.webhook.dispatcher.WebhookMessage;
-import dev.vality.webhook.dispatcher.config.PostgresSpingBooTTest;
+import dev.vality.webhook.dispatcher.config.PostgresSpingBootITest;
 import dev.vality.webhook.dispatcher.repository.DeadWebhookRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-@PostgresSpingBooTTest
+@PostgresSpingBootITest
 class WebhookDaoImplTest {
 
     @Autowired

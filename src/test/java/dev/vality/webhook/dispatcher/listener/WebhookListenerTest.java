@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -48,7 +47,6 @@ class WebhookListenerTest {
 
     @BeforeEach
     void init() {
-        MockitoAnnotations.openMocks(this);
         WebhookDispatcherService webhookDispatcherService =
                 new WebhookDispatcherServiceImpl(client, new IgnoreHttpErrorHandler());
 

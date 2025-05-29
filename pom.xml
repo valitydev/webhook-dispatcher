@@ -32,14 +32,9 @@
     <dependencies>
         <!--rbkmoney-->
         <dependency>
-            <groupId>dev.vality.woody</groupId>
-            <artifactId>woody-thrift</artifactId>
-            <version>2.0.9</version>
-        </dependency>
-        <dependency>
             <groupId>dev.vality</groupId>
-            <artifactId>shared-resources</artifactId>
-            <version>3.0.0</version>
+            <artifactId>damsel</artifactId>
+            <version>1.652-ecf4977</version>
         </dependency>
         <dependency>
             <groupId>dev.vality</groupId>
@@ -112,7 +107,6 @@
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
-            <version>6.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -170,7 +164,7 @@
         <dependency>
             <groupId>dev.vality</groupId>
             <artifactId>testcontainers-annotations</artifactId>
-            <version>3.0.0</version>
+            <version>3.0.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -1,9 +1,9 @@
 package dev.vality.webhook.dispatcher;
 
 import dev.vality.testcontainers.annotations.KafkaConfig;
-import dev.vality.testcontainers.annotations.kafka.KafkaTestcontainer;
+import dev.vality.testcontainers.annotations.kafka.KafkaTestcontainerSingleton;
 import dev.vality.testcontainers.annotations.kafka.config.KafkaProducer;
-import dev.vality.webhook.dispatcher.config.PostgresSpingBooTTest;
+import dev.vality.webhook.dispatcher.config.PostgresSpingBootITest;
 import dev.vality.webhook.dispatcher.dao.WebhookDao;
 import org.apache.thrift.TBase;
 import org.junit.jupiter.api.Test;
@@ -17,13 +17,13 @@ import java.util.HashMap;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@KafkaTestcontainer(
+@KafkaTestcontainerSingleton(
         properties = {"merchant.timeout=1", "kafka.topic.concurrency.forward=1"},
         topicsKeys = {"kafka.topic.webhook.forward", "kafka.topic.webhook.first.retry",
                 "kafka.topic.webhook.second.retry", "kafka.topic.webhook.third.retry",
                 "kafka.topic.webhook.last.retry", "kafka.topic.webhook.dead.letter.queue"})
 @KafkaConfig
-@PostgresSpingBooTTest
+@PostgresSpingBootITest
 @EnableWireMock
 public class WebhookDispatcherApplicationTest {
 
@@ -42,7 +42,7 @@ public class WebhookDispatcherApplicationTest {
     void listenCreatedTimeout() throws InterruptedException {
         String response = "{}";
         stubFor(
-                post(urlEqualTo(wireMockUrl + "/"))
+                post(urlEqualTo("/"))
                         .withHeader("Content-Type", equalTo(APPLICATION_JSON))
                         .willReturn(aResponse().withFixedDelay(15000)
                                 .withStatus(200)
@@ -58,7 +58,7 @@ public class WebhookDispatcherApplicationTest {
         Thread.sleep(4500L);
 
         stubFor(
-                post(urlEqualTo(wireMockUrl + "/"))
+                post(urlEqualTo("/"))
                         .withHeader("Content-Type", equalTo(APPLICATION_JSON))
                         .willReturn(aResponse()
                                 .withStatus(200)

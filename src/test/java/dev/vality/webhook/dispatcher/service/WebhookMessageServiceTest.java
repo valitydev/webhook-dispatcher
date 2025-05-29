@@ -2,7 +2,7 @@ package dev.vality.webhook.dispatcher.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.vality.webhook.dispatcher.WebhookNotFound;
-import dev.vality.webhook.dispatcher.config.PostgresSpingBooTTest;
+import dev.vality.webhook.dispatcher.config.PostgresSpingBootITest;
 import dev.vality.webhook.dispatcher.entity.DeadWebhookEntity;
 import dev.vality.webhook.dispatcher.repository.DeadWebhookRepository;
 import dev.vality.webhook.dispatcher.utils.IdGenerator;
@@ -20,7 +20,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @EnableWireMock
-@PostgresSpingBooTTest
+@PostgresSpingBootITest
 class WebhookMessageServiceTest {
 
     @Value("${wiremock.server.baseUrl}")

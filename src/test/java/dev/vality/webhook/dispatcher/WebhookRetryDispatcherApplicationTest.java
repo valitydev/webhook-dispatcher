@@ -4,7 +4,7 @@ import dev.vality.kafka.common.exception.RetryableException;
 import dev.vality.testcontainers.annotations.KafkaConfig;
 import dev.vality.testcontainers.annotations.kafka.KafkaTestcontainerSingleton;
 import dev.vality.testcontainers.annotations.kafka.config.KafkaProducer;
-import dev.vality.webhook.dispatcher.config.PostgresSpingBooTTest;
+import dev.vality.webhook.dispatcher.config.PostgresSpingBootITest;
 import dev.vality.webhook.dispatcher.service.WebhookDispatcherService;
 import org.apache.thrift.TBase;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
                 "kafka.topic.webhook.second.retry", "kafka.topic.webhook.third.retry",
                 "kafka.topic.webhook.last.retry", "kafka.topic.webhook.dead.letter.queue"})
 @KafkaConfig
-@PostgresSpingBooTTest
+@PostgresSpingBootITest
 class WebhookRetryDispatcherApplicationTest {
 
     @Value("${kafka.topic.webhook.forward}")

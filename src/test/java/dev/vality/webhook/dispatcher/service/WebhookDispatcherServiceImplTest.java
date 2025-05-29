@@ -3,7 +3,7 @@ package dev.vality.webhook.dispatcher.service;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import dev.vality.kafka.common.exception.RetryableException;
 import dev.vality.webhook.dispatcher.WebhookMessage;
-import dev.vality.webhook.dispatcher.config.PostgresSpingBooTTest;
+import dev.vality.webhook.dispatcher.config.PostgresSpingBootITest;
 import org.apache.http.entity.ContentType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
 @EnableWireMock
-@PostgresSpingBooTTest
+@PostgresSpingBootITest
 class WebhookDispatcherServiceImplTest {
 
     @Value("${wiremock.server.baseUrl}")
