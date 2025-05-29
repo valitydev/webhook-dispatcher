@@ -49,8 +49,8 @@ class LastRetryWebhookListenerTest {
     private ConsumerSeekAware.ConsumerSeekCallback consumerSeekCallback;
 
     @BeforeEach
-    public void init() {
-        MockitoAnnotations.initMocks(this);
+    void init() {
+        MockitoAnnotations.openMocks(this);
         WebhookHandlerImpl handler = new WebhookHandlerImpl(
                 webhookDispatcherService,
                 postponedDispatchFilter,

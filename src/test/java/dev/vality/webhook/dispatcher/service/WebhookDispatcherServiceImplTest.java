@@ -1,20 +1,14 @@
 package dev.vality.webhook.dispatcher.service;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import dev.vality.kafka.common.exception.RetryableException;
 import dev.vality.webhook.dispatcher.WebhookMessage;
-import dev.vality.webhook.dispatcher.config.PostgresqlSpringBootITest;
-import org.apache.http.client.config.RequestConfig;
+import dev.vality.webhook.dispatcher.config.PostgresSpingBooTTest;
 import org.apache.http.entity.ContentType;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.beans.factory.annotation.Value;
+import org.wiremock.spring.EnableWireMock;
 
 import java.util.HashMap;
 
@@ -23,9 +17,12 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
-@AutoConfigureWireMock(port = 8089)
-@PostgresqlSpringBootITest
+@EnableWireMock
+@PostgresSpingBooTTest
 class WebhookDispatcherServiceImplTest {
+
+    @Value("${wiremock.server.baseUrl}")
+    private String wireMockUrl;
 
     private static final String ALG_RS_256 = "alg=RS256";
     private static final String DIGEST =
@@ -39,18 +36,18 @@ class WebhookDispatcherServiceImplTest {
     @Autowired
     private WebhookDispatcherService webhookDispatcherService;
 
-
     @Test
-    void dispatchError() {
-        stubFor(post(urlEqualTo("/test"))
+    void dispatchErrorWithTimeout() {
+        int timeoutInMillis = 20000;
+        stubFor(post(urlPathEqualTo("/test"))
                 .willReturn(aResponse()
                         .withStatus(200)
-                        .withFixedDelay(20000)
+                        .withFixedDelay(timeoutInMillis)
                         .withHeader("Content-Type", "text/xml")
                         .withBody("<response>Some content</response>")));
 
         WebhookMessage webhookMessage = new WebhookMessage();
-        webhookMessage.setUrl("http://localhost:8089/test");
+        webhookMessage.setUrl(wireMockUrl + "/test");
         webhookMessage.setRequestBody("{}".getBytes());
         webhookMessage.setContentType(ContentType.APPLICATION_JSON.getMimeType());
         HashMap<String, String> additionalHeaders = new HashMap<>();
@@ -59,8 +56,8 @@ class WebhookDispatcherServiceImplTest {
     }
 
     @Test
-    void dispatch() {
-        stubFor(post(urlEqualTo("/test"))
+    void dispatchSuccess() {
+        stubFor(post(urlPathEqualTo("/test"))
                 .withHeader(CONTENT_TYPE, new EqualToPattern(ContentType.APPLICATION_JSON.getMimeType()))
                 .withHeader("Content-Signature", new EqualToPattern(ALG_RS_256))
                 .withHeader("digest", new EqualToPattern(DIGEST))
@@ -70,7 +67,7 @@ class WebhookDispatcherServiceImplTest {
                         .withBody("{\"response\":\"test\"}")));
 
         WebhookMessage webhookMessage = new WebhookMessage();
-        webhookMessage.setUrl("http://localhost:8089/test");
+        webhookMessage.setUrl(wireMockUrl + "/test");
         webhookMessage.setRequestBody("{}".getBytes());
         webhookMessage.setContentType(ContentType.APPLICATION_JSON.getMimeType());
         HashMap<String, String> additionalHeaders = new HashMap<>();

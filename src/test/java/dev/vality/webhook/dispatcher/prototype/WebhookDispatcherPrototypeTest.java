@@ -28,8 +28,8 @@ class WebhookDispatcherPrototypeTest {
     RemoteClient remoteClient;
 
     @BeforeEach
-    public void init() {
-        MockitoAnnotations.initMocks(this);
+    void init() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -64,7 +64,7 @@ class WebhookDispatcherPrototypeTest {
 
         iterateThreeMessage(forwardQueue, firstRetryQueue);
 
-        assertEquals(firstRetryQueue.size(), 3);
+        assertEquals(3, firstRetryQueue.size());
 
         Model event = firstRetryQueue.poll();
         checkAndCommit(event, secondRetryQueue);
@@ -112,7 +112,7 @@ class WebhookDispatcherPrototypeTest {
     }
 
     @AllArgsConstructor
-    class Model {
+    static class Model {
         public String id;
         public int sequence;
     }

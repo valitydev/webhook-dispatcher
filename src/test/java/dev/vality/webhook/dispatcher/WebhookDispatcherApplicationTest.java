@@ -1,15 +1,15 @@
 package dev.vality.webhook.dispatcher;
 
-import dev.vality.testcontainers.annotations.KafkaSpringBootTest;
+import dev.vality.testcontainers.annotations.KafkaConfig;
 import dev.vality.testcontainers.annotations.kafka.KafkaTestcontainer;
 import dev.vality.testcontainers.annotations.kafka.config.KafkaProducer;
-import dev.vality.testcontainers.annotations.postgresql.PostgresqlTestcontainerSingleton;
+import dev.vality.webhook.dispatcher.config.PostgresSpingBooTTest;
 import dev.vality.webhook.dispatcher.dao.WebhookDao;
 import org.apache.thrift.TBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.wiremock.spring.EnableWireMock;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -22,15 +22,16 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
         topicsKeys = {"kafka.topic.webhook.forward", "kafka.topic.webhook.first.retry",
                 "kafka.topic.webhook.second.retry", "kafka.topic.webhook.third.retry",
                 "kafka.topic.webhook.last.retry", "kafka.topic.webhook.dead.letter.queue"})
-@KafkaSpringBootTest
-@PostgresqlTestcontainerSingleton
-@AutoConfigureWireMock(port = 8089)
+@KafkaConfig
+@PostgresSpingBooTTest
+@EnableWireMock
 public class WebhookDispatcherApplicationTest {
+
+    @Value("${wiremock.server.baseUrl}")
+    private String wireMockUrl;
 
     @Value("${kafka.topic.webhook.forward}")
     private String forwardTopicName;
-
-    public static final String URL = "http://localhost:8089";
     public static final String APPLICATION_JSON = "application/json";
     @Autowired
     private WebhookDao webhookDao;
@@ -41,7 +42,7 @@ public class WebhookDispatcherApplicationTest {
     void listenCreatedTimeout() throws InterruptedException {
         String response = "{}";
         stubFor(
-                post(urlEqualTo("/"))
+                post(urlEqualTo(wireMockUrl + "/"))
                         .withHeader("Content-Type", equalTo(APPLICATION_JSON))
                         .willReturn(aResponse().withFixedDelay(15000)
                                 .withStatus(200)
@@ -57,7 +58,7 @@ public class WebhookDispatcherApplicationTest {
         Thread.sleep(4500L);
 
         stubFor(
-                post(urlEqualTo("/"))
+                post(urlEqualTo(wireMockUrl + "/"))
                         .withHeader("Content-Type", equalTo(APPLICATION_JSON))
                         .willReturn(aResponse()
                                 .withStatus(200)
@@ -79,7 +80,7 @@ public class WebhookDispatcherApplicationTest {
         WebhookMessage webhook = new WebhookMessage();
         webhook.setSourceId(sourceId);
         webhook.setCreatedAt(createdAt);
-        webhook.setUrl(URL);
+        webhook.setUrl(wireMockUrl);
         webhook.setContentType(APPLICATION_JSON);
         webhook.setRequestBody("\\{\\}".getBytes());
         webhook.setEventId(eventId);
