@@ -13,9 +13,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @KafkaConfig
 @KafkaTestcontainerSingleton(
-        properties = {"merchant.timeout=1", "kafka.topic.concurrency.forward=1",
-                "retry.first.seconds=1", "retry.second.seconds=2", "retry.third.seconds=3",
-                "retry.last.seconds=4", "retry.dead.time.hours=1"},
+        properties = {"merchant.timeout=1", "kafka.topic.concurrency.forward=1", "retry.nack.seconds=1",
+                "retry.first.seconds=1", "retry.second.seconds=1", "retry.third.seconds=1",
+                "retry.last.seconds=1", "retry.dead.time.hours=1"},
         topicsKeys = {"kafka.topic.webhook.forward", "kafka.topic.webhook.first.retry",
                 "kafka.topic.webhook.second.retry", "kafka.topic.webhook.third.retry",
                 "kafka.topic.webhook.last.retry", "kafka.topic.webhook.dead.letter.queue"})
