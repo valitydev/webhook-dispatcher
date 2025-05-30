@@ -1,9 +1,8 @@
 package dev.vality.webhook.dispatcher;
 
 import dev.vality.kafka.common.exception.RetryableException;
-import dev.vality.testcontainers.annotations.KafkaConfig;
-import dev.vality.testcontainers.annotations.kafka.KafkaTestcontainerSingleton;
 import dev.vality.testcontainers.annotations.kafka.config.KafkaProducer;
+import dev.vality.webhook.dispatcher.config.KafkaTest;
 import dev.vality.webhook.dispatcher.config.PostgresSpingBootITest;
 import dev.vality.webhook.dispatcher.service.WebhookDispatcherService;
 import org.apache.thrift.TBase;
@@ -19,14 +18,7 @@ import java.util.HashMap;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@KafkaTestcontainerSingleton(
-        properties = {"merchant.timeout=1", "retry.first.seconds=1",
-                "retry.second.seconds=2", "retry.third.seconds=3",
-                "retry.last.seconds=4", "retry.dead.time.hours=1"},
-        topicsKeys = {"kafka.topic.webhook.forward", "kafka.topic.webhook.first.retry",
-                "kafka.topic.webhook.second.retry", "kafka.topic.webhook.third.retry",
-                "kafka.topic.webhook.last.retry", "kafka.topic.webhook.dead.letter.queue"})
-@KafkaConfig
+@KafkaTest
 @PostgresSpingBootITest
 class WebhookRetryDispatcherApplicationTest {
 

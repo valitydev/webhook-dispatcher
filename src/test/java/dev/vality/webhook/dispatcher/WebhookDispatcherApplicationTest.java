@@ -1,8 +1,7 @@
 package dev.vality.webhook.dispatcher;
 
-import dev.vality.testcontainers.annotations.KafkaConfig;
-import dev.vality.testcontainers.annotations.kafka.KafkaTestcontainerSingleton;
 import dev.vality.testcontainers.annotations.kafka.config.KafkaProducer;
+import dev.vality.webhook.dispatcher.config.KafkaTest;
 import dev.vality.webhook.dispatcher.config.PostgresSpingBootITest;
 import dev.vality.webhook.dispatcher.dao.WebhookDao;
 import org.apache.thrift.TBase;
@@ -17,12 +16,7 @@ import java.util.HashMap;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@KafkaTestcontainerSingleton(
-        properties = {"merchant.timeout=1", "kafka.topic.concurrency.forward=1"},
-        topicsKeys = {"kafka.topic.webhook.forward", "kafka.topic.webhook.first.retry",
-                "kafka.topic.webhook.second.retry", "kafka.topic.webhook.third.retry",
-                "kafka.topic.webhook.last.retry", "kafka.topic.webhook.dead.letter.queue"})
-@KafkaConfig
+@KafkaTest
 @PostgresSpingBootITest
 @EnableWireMock
 public class WebhookDispatcherApplicationTest {
