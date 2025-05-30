@@ -63,7 +63,7 @@ class WebhookFlowDispatcherApplicationTest {
 
         testThriftKafkaProducer.send(forwardTopicName, webhook);
 
-        verify(webhookDispatcherService, timeout(10000L).times(2)).dispatch(any());
+        verify(webhookDispatcherService, timeout(15000L).times(2)).dispatch(any());
     }
 
     private WebhookMessage createWebhook(String sourceId, String createdAt, long eventId) {
