@@ -9,6 +9,7 @@ import org.apache.thrift.TBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ import static org.mockito.Mockito.*;
 
 @KafkaTest
 @PostgresSpingBootITest
+@DirtiesContext
 class WebhookRetryDispatcherApplicationTest {
 
     @Value("${kafka.topic.webhook.forward}")
