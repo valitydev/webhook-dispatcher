@@ -8,6 +8,7 @@ import org.apache.thrift.TBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.test.annotation.DirtiesContext;
 import org.wiremock.spring.EnableWireMock;
 
 import java.time.Instant;
@@ -19,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @KafkaTest
 @PostgresSpingBootITest
 @EnableWireMock
+@DirtiesContext
 public class WebhookDispatcherApplicationTest {
 
     @Value("${wiremock.server.baseUrl}")
