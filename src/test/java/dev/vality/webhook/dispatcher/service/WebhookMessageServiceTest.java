@@ -2,7 +2,7 @@ package dev.vality.webhook.dispatcher.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.vality.webhook.dispatcher.WebhookNotFound;
-import dev.vality.webhook.dispatcher.config.PostgresqlSpringBootITest;
+import dev.vality.webhook.dispatcher.config.PostgresSpingBootITest;
 import dev.vality.webhook.dispatcher.entity.DeadWebhookEntity;
 import dev.vality.webhook.dispatcher.repository.DeadWebhookRepository;
 import dev.vality.webhook.dispatcher.utils.IdGenerator;
@@ -10,7 +10,8 @@ import org.apache.http.entity.ContentType;
 import org.apache.thrift.TException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.beans.factory.annotation.Value;
+import org.wiremock.spring.EnableWireMock;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -18,9 +19,12 @@ import java.util.HashMap;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@AutoConfigureWireMock(port = 8089)
-@PostgresqlSpringBootITest
+@EnableWireMock
+@PostgresSpingBootITest
 class WebhookMessageServiceTest {
+
+    @Value("${wiremock.server.baseUrl}")
+    private String wireMockUrl;
 
     @Autowired
     private WebhookMessageService webhookMessageService;
@@ -40,7 +44,7 @@ class WebhookMessageServiceTest {
 
     @Test
     void failedResend() throws Exception {
-        stubFor(post(urlEqualTo("/test"))
+        stubFor(post(urlPathEqualTo("/test"))
                 .willReturn(aResponse()
                         .withStatus(404)
                         .withHeader("Content-Type", "text/xml")
@@ -49,7 +53,7 @@ class WebhookMessageServiceTest {
         deadWebhook.setWebhookId(1L);
         deadWebhook.setEventId(2L);
         deadWebhook.setSourceId("sourceId");
-        deadWebhook.setUrl("http://localhost:8089/test");
+        deadWebhook.setUrl(wireMockUrl + "/test");
         deadWebhook.setContentType(ContentType.APPLICATION_JSON.getMimeType());
         deadWebhook.setParentEventId(-1L);
         deadWebhook.setAdditionalHeaders(new ObjectMapper().writeValueAsString(new HashMap<>()));
@@ -77,7 +81,7 @@ class WebhookMessageServiceTest {
 
     @Test
     void successResend() throws Exception {
-        stubFor(post(urlEqualTo("/test"))
+        stubFor(post(urlPathEqualTo("/test"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "text/xml")
@@ -86,7 +90,7 @@ class WebhookMessageServiceTest {
         deadWebhook.setWebhookId(1L);
         deadWebhook.setEventId(2L);
         deadWebhook.setSourceId("sourceId");
-        deadWebhook.setUrl("http://localhost:8089/test");
+        deadWebhook.setUrl(wireMockUrl + "/test");
         deadWebhook.setContentType(ContentType.APPLICATION_JSON.getMimeType());
         deadWebhook.setParentEventId(-1L);
         deadWebhook.setAdditionalHeaders(new ObjectMapper().writeValueAsString(new HashMap<>()));

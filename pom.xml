@@ -6,7 +6,7 @@
     <parent>
         <groupId>dev.vality</groupId>
         <artifactId>service-parent-pom</artifactId>
-        <version>2.0.4</version>
+        <version>3.1.0</version>
     </parent>
 
     <artifactId>webhook-dispatcher</artifactId>
@@ -32,14 +32,9 @@
     <dependencies>
         <!--rbkmoney-->
         <dependency>
-            <groupId>dev.vality.woody</groupId>
-            <artifactId>woody-thrift</artifactId>
-            <version>1.0.4</version>
-        </dependency>
-        <dependency>
             <groupId>dev.vality</groupId>
-            <artifactId>shared-resources</artifactId>
-            <version>2.1.0</version>
+            <artifactId>damsel</artifactId>
+            <version>1.652-ecf4977</version>
         </dependency>
         <dependency>
             <groupId>dev.vality</groupId>
@@ -57,6 +52,7 @@
         <dependency>
             <groupId>dev.vality.geck</groupId>
             <artifactId>serializer</artifactId>
+            <version>1.0.2</version>
         </dependency>
 
         <!--spring-->
@@ -109,17 +105,18 @@
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.32</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>5.4.2</version>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>
@@ -131,16 +128,26 @@
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>29.0-jre</version>
+            <version>33.4.0-jre</version>
         </dependency>
         <dependency>
             <groupId>software.amazon.msk</groupId>
             <artifactId>aws-msk-iam-auth</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!--test-->
@@ -157,19 +164,13 @@
         <dependency>
             <groupId>dev.vality</groupId>
             <artifactId>testcontainers-annotations</artifactId>
-            <version>1.4.3</version>
+            <version>3.0.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-contract-wiremock</artifactId>
-            <version>3.1.5</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.tomakehurst</groupId>
-            <artifactId>wiremock-jre8-standalone</artifactId>
-            <version>${wiremock.version}</version>
+            <groupId>org.wiremock.integrations</groupId>
+            <artifactId>wiremock-spring-boot</artifactId>
+            <version>3.8.2</version>
             <scope>test</scope>
         </dependency>
 

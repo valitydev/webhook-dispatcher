@@ -1,15 +1,9 @@
 server:
-  port: '${server.port}'
+  port: ${server.port}
 
 management:
-  security:
-    flag: false
   server:
-    port: '${management.port}'
-  metrics:
-    export:
-      prometheus:
-        enabled: false
+    port: ${management.port}
   endpoint:
     health:
       show-details: always
@@ -21,10 +15,14 @@ management:
     web:
       exposure:
         include: health,info,prometheus
+  prometheus:
+    metrics:
+      export:
+        enabled: false
 
 spring:
   application:
-    name: '${project.name}'
+    name: ${project.name}
   output:
     ansi:
       enabled: always
@@ -36,14 +34,10 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: org.postgresql.Driver
-    url: '${db.url}'
-    username: '${db.user}'
-    password: '${db.password}'
+    url: ${db.url}
+    username: ${db.user}
+    password: ${db.password}
     hikari.maximum-pool-size: 10
-  flyway:
-    table: schema_version
-    schemas: wb_dispatch
-    url: '${db.url}'
   kafka:
     bootstrap-servers: "localhost:29092"
     consumer:
@@ -79,12 +73,13 @@ kafka:
     last.retry: 1
     dead.letter.queue: 1
 
-merchant:
+http-client:
   timeout: 10000
   max.per.route: 20
   max.total: 1000
 
 retry:
+  nack.seconds: 5
   first.seconds: 30
   second.seconds: 600
   third.seconds: 1800

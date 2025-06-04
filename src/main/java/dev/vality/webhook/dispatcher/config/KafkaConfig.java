@@ -3,13 +3,10 @@ package dev.vality.webhook.dispatcher.config;
 import dev.vality.kafka.common.serialization.ThriftSerializer;
 import dev.vality.kafka.common.util.ExponentialBackOffDefaultErrorHandlerFactory;
 import dev.vality.webhook.dispatcher.WebhookMessage;
-import dev.vality.webhook.dispatcher.handler.RetryHandler;
 import dev.vality.webhook.dispatcher.serde.WebhookDeserializer;
 import lombok.RequiredArgsConstructor;
-import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,11 +19,7 @@ import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DefaultErrorHandler;
-import org.springframework.kafka.listener.SeekToCurrentErrorHandler;
-import org.springframework.util.backoff.FixedBackOff;
 
-import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 
 @RequiredArgsConstructor

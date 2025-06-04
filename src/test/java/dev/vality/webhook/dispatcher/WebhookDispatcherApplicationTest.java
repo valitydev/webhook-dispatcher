@@ -1,15 +1,15 @@
 package dev.vality.webhook.dispatcher;
 
-import dev.vality.testcontainers.annotations.KafkaSpringBootTest;
-import dev.vality.testcontainers.annotations.kafka.KafkaTestcontainer;
 import dev.vality.testcontainers.annotations.kafka.config.KafkaProducer;
-import dev.vality.testcontainers.annotations.postgresql.PostgresqlTestcontainerSingleton;
+import dev.vality.webhook.dispatcher.config.KafkaTest;
+import dev.vality.webhook.dispatcher.config.PostgresSpingBootITest;
 import dev.vality.webhook.dispatcher.dao.WebhookDao;
 import org.apache.thrift.TBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.test.annotation.DirtiesContext;
+import org.wiremock.spring.EnableWireMock;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -17,20 +17,17 @@ import java.util.HashMap;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@KafkaTestcontainer(
-        properties = {"merchant.timeout=1", "kafka.topic.concurrency.forward=1"},
-        topicsKeys = {"kafka.topic.webhook.forward", "kafka.topic.webhook.first.retry",
-                "kafka.topic.webhook.second.retry", "kafka.topic.webhook.third.retry",
-                "kafka.topic.webhook.last.retry", "kafka.topic.webhook.dead.letter.queue"})
-@KafkaSpringBootTest
-@PostgresqlTestcontainerSingleton
-@AutoConfigureWireMock(port = 8089)
+@KafkaTest
+@PostgresSpingBootITest
+@EnableWireMock
+@DirtiesContext
 public class WebhookDispatcherApplicationTest {
+
+    @Value("${wiremock.server.baseUrl}")
+    private String wireMockUrl;
 
     @Value("${kafka.topic.webhook.forward}")
     private String forwardTopicName;
-
-    public static final String URL = "http://localhost:8089";
     public static final String APPLICATION_JSON = "application/json";
     @Autowired
     private WebhookDao webhookDao;
@@ -79,7 +76,7 @@ public class WebhookDispatcherApplicationTest {
         WebhookMessage webhook = new WebhookMessage();
         webhook.setSourceId(sourceId);
         webhook.setCreatedAt(createdAt);
-        webhook.setUrl(URL);
+        webhook.setUrl(wireMockUrl);
         webhook.setContentType(APPLICATION_JSON);
         webhook.setRequestBody("\\{\\}".getBytes());
         webhook.setEventId(eventId);

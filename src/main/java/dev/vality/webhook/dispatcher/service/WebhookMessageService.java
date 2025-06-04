@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -21,6 +22,7 @@ public class WebhookMessageService {
     private final DeadWebhookConverter deadWebhookConverter;
     private final WebhookDispatcherService webhookDispatcherService;
 
+    @Transactional
     public void resend(
             long webhookId,
             String sourceId,

@@ -11,8 +11,9 @@ import dev.vality.webhook.dispatcher.service.WebhookDispatcherService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.ConsumerSeekAware;
 import org.springframework.kafka.support.Acknowledgment;
@@ -23,13 +24,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class LastRetryWebhookListenerTest {
 
     private static final long DEFAULT_TIMEOUT = 1L;
     private static final String TOPIC = "test";
     private static final String SOURCE_ID = "test";
 
-    private RetryHandler handler;
+    private RetryHandler retryHandler;
 
     @Mock
     private TimeDispatchFilter timeDispatchFilter;
@@ -49,22 +51,21 @@ class LastRetryWebhookListenerTest {
     private ConsumerSeekAware.ConsumerSeekCallback consumerSeekCallback;
 
     @BeforeEach
-    public void init() {
-        MockitoAnnotations.initMocks(this);
-        WebhookHandlerImpl handler = new WebhookHandlerImpl(
+    void init() {
+        WebhookHandlerImpl webhookHandler = new WebhookHandlerImpl(
                 webhookDispatcherService,
                 postponedDispatchFilter,
                 deadRetryDispatchFilter,
                 webhookDao,
                 kafkaTemplate);
 
-        this.handler = new RetryHandler(handler, timeDispatchFilter);
+        this.retryHandler = new RetryHandler(webhookHandler, timeDispatchFilter);
     }
 
     @Test
     void listen() throws IOException {
         LastRetryWebhookListener lastRetryWebhookListener = new LastRetryWebhookListener(TOPIC, DEFAULT_TIMEOUT,
-                DEFAULT_TIMEOUT, DEFAULT_TIMEOUT, DEFAULT_TIMEOUT, handler);
+                DEFAULT_TIMEOUT, DEFAULT_TIMEOUT, DEFAULT_TIMEOUT, retryHandler);
         lastRetryWebhookListener.registerSeekCallback(consumerSeekCallback);
 
         WebhookMessage webhookMessage = new WebhookMessage()

@@ -5,15 +5,20 @@ import dev.vality.webhook.dispatcher.filter.TimeDispatchFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class RetryHandler {
 
-    public static final long WAITING_PERIOD = 500L;
+    @Value("${retry.nack.seconds}")
+    private long waitingPeriod;
     private final WebhookHandler handler;
     private final TimeDispatchFilter timeDispatchFilter;
 
@@ -28,7 +33,7 @@ public class RetryHandler {
             acknowledgment.acknowledge();
         } else {
             try {
-                acknowledgment.nack(WAITING_PERIOD);
+                acknowledgment.nack(Duration.of(waitingPeriod, ChronoUnit.SECONDS));
                 log.debug("Waiting timeout: {}", timeout);
             } catch (Exception e) {
                 log.warn("Exception during seek aware", e);

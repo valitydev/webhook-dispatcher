@@ -1,11 +1,11 @@
 package dev.vality.webhook.dispatcher.prototype;
 
 import lombok.AllArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +15,7 @@ import java.util.concurrent.TimeoutException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith(MockitoExtension.class)
 class WebhookDispatcherPrototypeTest {
 
     LinkedBlockingQueue<Model> forwardQueue = new LinkedBlockingQueue<>();
@@ -27,13 +28,8 @@ class WebhookDispatcherPrototypeTest {
     @Mock
     RemoteClient remoteClient;
 
-    @BeforeEach
-    public void init() {
-        MockitoAnnotations.initMocks(this);
-    }
-
     @Test
-    void prototypeModel() throws InterruptedException, TimeoutException {
+    void prototypeModel() throws InterruptedException {
         forwardQueue.put(new Model("1", 1));
         forwardQueue.put(new Model("1", 2));
         forwardQueue.put(new Model("1", 3));
@@ -64,7 +60,7 @@ class WebhookDispatcherPrototypeTest {
 
         iterateThreeMessage(forwardQueue, firstRetryQueue);
 
-        assertEquals(firstRetryQueue.size(), 3);
+        assertEquals(3, firstRetryQueue.size());
 
         Model event = firstRetryQueue.poll();
         checkAndCommit(event, secondRetryQueue);
@@ -112,7 +108,7 @@ class WebhookDispatcherPrototypeTest {
     }
 
     @AllArgsConstructor
-    class Model {
+    static class Model {
         public String id;
         public int sequence;
     }
