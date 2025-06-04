@@ -17,8 +17,6 @@ import org.springframework.web.client.RestClientException;
 import java.net.URI;
 import java.util.Map;
 
-//import static org.apache.http.HttpHeaders.CONTENT_TYPE;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
