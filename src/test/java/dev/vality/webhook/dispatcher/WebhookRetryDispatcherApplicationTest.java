@@ -37,7 +37,13 @@ class WebhookRetryDispatcherApplicationTest {
     void listenCreatedTimeout() throws IOException {
         String sourceId = "123";
         WebhookMessage webhook = createWebhook(sourceId, Instant.now().toString(), 0);
-        doThrow(new RetryableException()).when(webhookDispatcherService).dispatch(any());
+        when(webhookDispatcherService.dispatch(any()))
+                .thenThrow(new RetryableException())
+                .thenThrow(new RetryableException())
+                .thenThrow(new RetryableException())
+                .thenThrow(new RetryableException())
+                .thenThrow(new RetryableException())
+                .thenThrow(new RetryableException());
 
         testThriftKafkaProducer.send(forwardTopicName, webhook);
 
