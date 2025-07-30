@@ -30,11 +30,10 @@
     </properties>
 
     <dependencies>
-        <!--rbkmoney-->
+        <!--vality-->
         <dependency>
             <groupId>dev.vality</groupId>
             <artifactId>damsel</artifactId>
-            <version>1.665-392f561</version>
         </dependency>
         <dependency>
             <groupId>dev.vality</groupId>
