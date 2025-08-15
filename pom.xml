@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>webhook-dispatcher</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>webhook-dispatcher</name>
 
@@ -163,13 +163,13 @@
         <dependency>
             <groupId>dev.vality</groupId>
             <artifactId>testcontainers-annotations</artifactId>
-            <version>3.0.2</version>
+            <version>3.3.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.wiremock.integrations</groupId>
             <artifactId>wiremock-spring-boot</artifactId>
-            <version>3.8.2</version>
+            <version>3.10.6</version>
             <scope>test</scope>
         </dependency>
 
