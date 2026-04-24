@@ -33,6 +33,10 @@
         <!--vality-->
         <dependency>
             <groupId>dev.vality</groupId>
+            <artifactId>damsel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dev.vality</groupId>
             <artifactId>kafka-common-lib</artifactId>
         </dependency>
         <dependency>
