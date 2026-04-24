@@ -57,7 +57,6 @@ public class WebhookDispatcherServiceImpl implements WebhookDispatcherService {
         } catch (RestClientException e) {
             log.warn("Timeout error when send webhook: {}, errorMessage: {}", webhookMessage, e.getMessage());
             throw new RetryableException(e);
-
         }
     }
 

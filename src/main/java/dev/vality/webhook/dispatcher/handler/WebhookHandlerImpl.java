@@ -46,6 +46,8 @@ public class WebhookHandlerImpl implements WebhookHandler {
             log.warn("RetryableException during webhook handling", e);
             syncSendMessage(postponedTopic, webhookMessage);
             info("Send to retry topic: " + postponedTopic, webhookMessage);
+        } catch (IllegalArgumentException e) {
+            log.warn("IllegalArgumentException during webhook handling webhookMessage: {}", webhookMessage, e);
         } catch (Exception e) {
             log.error("Exception during webhook handling", e);
             throw new RuntimeException("Exception during webhook handling", e);
