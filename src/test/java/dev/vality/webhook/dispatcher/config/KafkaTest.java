@@ -1,7 +1,7 @@
 package dev.vality.webhook.dispatcher.config;
 
 
-import dev.vality.testcontainers.annotations.KafkaConfig;
+import dev.vality.testcontainers.annotations.KafkaTestConfig;
 import dev.vality.testcontainers.annotations.kafka.KafkaTestcontainerSingleton;
 
 import java.lang.annotation.ElementType;
@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@KafkaConfig
+@KafkaTestConfig
 @KafkaTestcontainerSingleton(
         properties = {"http-client.timeout=1", "kafka.topic.concurrency.forward=1", "retry.nack.seconds=1",
                 "retry.first.seconds=2", "retry.second.seconds=3", "retry.third.seconds=4",

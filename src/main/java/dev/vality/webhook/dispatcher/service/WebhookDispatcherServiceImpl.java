@@ -30,7 +30,7 @@ public class WebhookDispatcherServiceImpl implements WebhookDispatcherService {
         try {
             long executionTimeStart = System.currentTimeMillis();
             MediaType contentType = MediaType.parseMediaType(webhookMessage.getContentType());
-            URI uri = URI.create(webhookMessage.getUrl());
+            URI uri = URI.create(webhookMessage.getUrl().trim());
             ResponseEntity<String> response = restClient.post()
                     .uri(uri)
                     .contentType(contentType)
